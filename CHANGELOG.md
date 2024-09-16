@@ -1,3 +1,7 @@
+## 0.4.4-dev.7
+
+- Revert the version *1.18.0* of `collection` lib;
+
 ## 0.4.4-dev.6
 
 - Update dependencies to the latest possible versions;
