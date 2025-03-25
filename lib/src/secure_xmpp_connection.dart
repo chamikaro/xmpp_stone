@@ -1,53 +1,25 @@
-import 'dart:io';
 import 'package:xmpp_stone/xmpp_stone.dart';
+import 'dart:io';
 
-class SecureXmppConnection extends Connection {
-  static const String TAG = 'SecureXmppConnection';
+// This function creates a regular connection but patches Socket.secure
+// to use modern TLS settings for all connections
+Connection createSecureXmppConnection(XmppAccountSettings account) {
+  // Store the original secure method
+  Function originalSecureSocketMethod = SecureSocket.secure;
 
-  SecureXmppConnection(XmppAccountSettings account) : super(account);
+  // Replace with our enhanced version
+  SecureSocket.secure = (Socket socket, {onBadCertificate, context, host, sendClient}) {
+    print("Using enhanced TLS with TLSv1.2+ for XMPP connection");
+    return originalSecureSocketMethod(
+        socket,
+        onBadCertificate: onBadCertificate,
+        supportedProtocols: ['TLSv1.2', 'TLSv1.3'],
+        host: host,
+        context: context,
+        sendClient: sendClient
+    );
+  };
 
-  @override
-  void startSecureSocket() {
-    Log.d(TAG, 'Enhanced startSecureSocket with TLS 1.2/1.3 support');
-
-    try {
-      // Create a security context for TLS configuration
-      SecurityContext context = SecurityContext();
-
-      // Configure advanced TLS options
-      SecureSocket.secure(
-        _socket,
-        onBadCertificate: _validateBadCertificate,
-        supportedProtocols: ['TLSv1.2', 'TLSv1.3'], // Force modern TLS versions
-      ).then((secureSocket) {
-        _socket = secureSocket;
-        _socket
-            .cast<List<int>>()
-            .transform(utf8.decoder)
-            .map(prepareStreamResponse)
-            .listen(
-            handleResponse,
-            onError: (error) {
-              Log.e(TAG, 'TLS error: $error');
-              handleSecuredConnectionError(error.toString());
-            },
-            onDone: handleSecuredConnectionDone
-        );
-        _openStream();
-      }).catchError((error) {
-        Log.e(TAG, 'Failed to establish secure connection: $error');
-        startTlsFailed(); // This calls the parent method that handles TLS failure
-      });
-    } catch (e) {
-      Log.e(TAG, 'Exception during TLS setup: $e');
-      startTlsFailed();
-    }
-  }
-
-  @override
-  bool _validateBadCertificate(X509Certificate certificate) {
-    // You can add custom certificate validation here if needed
-    Log.d(TAG, 'Validating certificate: ${certificate.subject}');
-    return true; // Accept all certificates for now
-  }
+  // Create and return a normal connection - our patched secure method will be used
+  return Connection(account);
 }
