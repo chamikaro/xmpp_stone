@@ -1,7 +1,6 @@
 library xmpp_stone;
 
 export 'src/Connection.dart';
-export 'src/ejabberd_connection_helper.dart';
 export 'src/ConnectionStateChangedListener.dart';
 export 'src/account/XmppAccountSettings.dart';
 export 'src/chat/Chat.dart';

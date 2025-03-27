@@ -1,0 +1,161 @@
+[33m370ecb1[m Initial commit
+[33m561caad[m Changes in README file
+[33m07dea4e[m Formatting stream opening
+[33mbf6dd64[m Working on example
+[33m5386a1d[m updating readme file
+[33m8e3897e[m Introducing streams. Introducing Nonza handling.
+[33mfc2c70c[m Adding Presence manager
+[33mc6904be[m Working on roster manager
+[33m6625da7[m Working on connection handling
+[33mbf41e53[m Working on XMPP Service Discovery
+[33m5dd0a9d[m Changing library name to XmppStone
+[33me34dfff[m Working on connection testing
+[33me666501[m working on sha1 auth
+[33mee309b9[m working on sha1 auth
+[33m3864f32[m Added support for SHA-1 and SHA-256 mechanisms
+[33m9cad5ae[m Update README.md
+[33ma95328b[m updating README.md
+[33m4cda016[m Started working on VCARD
+[33m853148e[m Working on XEP-0054: vcard-temp Fixing some xml parsing issues. Introducing ChatManager
+[33mf8b4895[m Changing lib name Fixing bugs
+[33m594f916[m Fixing bugs
+[33mb35d2b6[m Exposing Chat Manager
+[33mdaeef62[m small bug fixing
+[33m49242f6[m Fixing xml parsing issues
+[33m59fabd8[m Trying to fix connection open/close events.
+[33m7a3961f[m Fixing ChatManager issues
+[33m56ac512[m Fixing issue
+[33mec85367[m Merge pull request #5 from vukoye/complete_STARTTLS_Before_TLS
+[33m137460f[m Small cleaning
+[33m70d9a0e[m Merge pull request #6 from vukoye/cleaning_up
+[33maa7673a[m updating version
+[33m7aabcd4[m adding authors field
+[33m57b273e[m updating CHANGELOG.md
+[33m2835878[m updating
+[33m8458f65[m Adding files.
+[33m5fb930c[m Updating files
+[33m55fc080[m Renaming files Cleaning up
+[33m6f95f24[m Delete Dart_SDK.xml
+[33m793e699[m Merge pull request #8 from vukoye/SCRAM_support
+[33m6a673fb[m Changing license
+[33maba9aac[m Fixing issues found withdart analyzer
+[33mb5c253c[m updating version number
+[33me95ba1a[m Fixing issue with adding and removing roster items.
+[33m27dbb30[m Temporary fix for openfire cert issue
+[33m46d86ea[m XEP-0198: Stream Management initial work
+[33mf4fbb6d[m Commit to xmpp_dart
+[33ma850abf[m Ping manager added to prevent from dropping session
+[33m9f78cfa[m Merge pull request #13 from vavadiyahiren/master
+[33maf1ffc7[m introducing new stream management settings
+[33m12c672f[m Merge branch 'master' of https://github.com/vukoye/xmpp_dart
+[33m126af4a[m introducing new stream management settings
+[33mc212b4e[m updating version
+[33m5682f2a[m updating version
+[33mecebdb0[m Added optional 'host' parameter to XmppAccountSettings in case the domain is not the same as the host server.
+[33mb0b8d28[m Merge pull request #15 from TerraDCF/master
+[33m1f87cfd[m Merge branch 'master' of https://github.com/vukoye/xmpp_dart
+[33m47dc15a[m updating homepage
+[33m6081480[m updating version
+[33m93a1c12[m Updating dependencies Code cleaning
+[33m0ababa8[m Updating dependencies
+[33m72e80a7[m Fixing Stream Management Issue
+[33m73a98f4[m Fixing bugs related to reconnection state and adding buddy to the roster list
+[33m2874d91[m partial fix for reconnection issue.
+[33maa21239[m Fix some problems(July 13, 2020)
+[33m7c452b3[m Merge pull request #22 from fluttercid/neo_branch
+[33m46bb6e2[m Merge pull request #1 from fluttercid/neo_branch
+[33mb4deb9f[m Apply XEP-0318(July 22, 2020)
+[33md5b141d[m Merge pull request #2 from fluttercid/neo_branch
+[33m245548a[m Merge pull request #24 from fluttercid/master
+[33m45a20db[m Update README.md
+[33m8408d1b[m Update CHANGELOG.md
+[33m9a7cbda[m Update pubspec.yaml
+[33m3918d22[m Modified the Subscribe functions(July 24, 2020)
+[33m1558d14[m Merge pull request #3 from fluttercid/neo_branch
+[33mbf15501[m Merge pull request #25 from fluttercid/master
+[33m698272d[m[33m ([m[1;31morigin/desired_resource_feature[m[33m)[m Binding custom resource fixed
+[33mb72f085[m Merge pull request #26 from vukoye/desired_resource_feature
+[33m7c32b01[m updating version
+[33m5d9625d[m Fix processing ServiceDiscovery info during second login.
+[33m5eb0fed[m Merge pull request #27 from TatankaConCube/master
+[33mc93d44f[m updating version
+[33m7005065[m Handling reconnection.
+[33m3abadf1[m additional work on reconnection
+[33m859bb11[m Fixing roster bugs.
+[33md12ecd4[m Updating library version
+[33mb09c82a[m Updating xml library version
+[33md3e3239[m fixing bugs
+[33m5445b59[m fixing bugs
+[33m7f9f8ea[m Improving library parser Adding Message Carbons Feature Adding Message Archive Manager Feature Improving Logging of the library
+[33m83e394c[m Fixing dart warning
+[33mfa80486[m Updating version and docs
+[33mcb5adb2[m Merge pull request #37 from vukoye/multiple_features
+[33m0998b76[m[33m ([m[1;31morigin/0_3_1_release[m[33m)[m Updating MAM Api. Fixing connection sequence.
+[33m7cd19cb[m Merge pull request #39 from vukoye/0_3_1_release
+[33m3858fe4[m Fix Stream Management resumption flow.
+[33m032749c[m Merge pull request #45 from TatankaConCube/master
+[33m07c6577[m updating library version
+[33m0e92eac[m Create main.yml
+[33m4632d35[m Removed the creation new 'negotiatorStateStreamController' every time after closing;
+[33mab031b7[m Merge branch 'master' of https://github.com/vukoye/xmpp_dart
+[33m92f9784[m Merge pull request #46 from TatankaConCube/master
+[33mf192dff[m Cleaning up. Updating version.
+[33m8bc7d56[m Removing tests
+[33m3b1a058[m[33m ([m[1;33mtag: [m[1;33m0.4.4-dev.7[m[33m, [m[1;31morigin/master[m[33m, [m[1;31morigin/HEAD[m[33m, [m[1;32mmaster[m[33m)[m Removing tests
+[33m8100c4c[m - implement 'nullsafety' feature;
+[33m2073a21[m - implement 'nullsafety' feature;
+[33m614c8d7[m Merge pull request #54 from TatankaConCube/feature/null_safety
+[33m908b02c[m Correct ScramSaslHandler.dart Bytes generation bug
+[33mb1cdd89[m Added dispose and removeInstance to Connection
+[33m06ba993[m Merge pull request #60 from ol88/PR
+[33mf0570ab[m Merge pull request #57 from Pas-de-sushi/null_safety
+[33m2eefc3a[m - fix JID parsing for Windows OS;
+[33m8eeec6c[m Merge pull request #63 from TatankaConCube/feature/fixes_and_improvements
+[33m95ee3f5[m - add Web-platform support;
+[33m1b842dc[m Merge pull request #65 from TatankaConCube/feature/add_web_support
+[33mf010cc5[m Support Anonymous Auth according to https://xmpp.org/extensions/xep-0175.html
+[33m12b516e[m - add XEP-0016 (Privacy Lists) support;
+[33md28038f[m - add XEP-0016 (Privacy Lists) support;
+[33m861fa54[m - add XEP-0016 (Privacy Lists) support;
+[33m9e1a5b7[m Merge pull request #73 from TatankaConCube/feature/xep_0016
+[33mb6c6002[m Merge pull request #69 from sausageRoll/support_anonymous_auth
+[33m5deed51[m 1. Added correct processing of iq with SET type 2. Fixed completion with correct data(IqStanzaResult instead of bool) 3. Added IqStanza to export to be able to process result and understand either operation was completed successfully
+[33m829c276[m updated xml dependency
+[33m24afc6c[m Fix version
+[33maf0a6bb[m fix remove Connection by key
+[33mc905125[m - make WS settings customizable;
+[33m3f8ce16[m - apply fix for WS https://github.com/vukoye/xmpp_dart/issues/67#issuecomment-1108735176;
+[33m07d6f54[m - improve login flow;
+[33ma921efb[m - update dependencies;
+[33m8cfec7b[m - add ignoring some IDE directories;
+[33me12bb74[m - revert the mistake pushed logs;
+[33mbe114a8[m - revert some dependency updates;
+[33m9f3e63f[m - fixes after updating libs;
+[33m5c47272[m[33m ([m[1;31morigin/null_safety[m[33m)[m Merge pull request #80 from TatankaConCube/fixes_and_improvements
+[33m8b9d4a8[m[33m ([m[1;33mtag: [m[1;33m0.4.4-dev.1[m[33m)[m - release 0.4.4-dev.1;
+[33mb46577f[m Merge pull request #78 from seoyong-lim/null_safety
+[33m5b7b578[m Merge pull request #77 from visionable-public/null_safety
+[33m1ec7078[m[33m ([m[1;31morigin/fix/fixes_and_improvements[m[33m)[m - fix establishing a connection with some XMPP servers;
+[33m71dc024[m Merge pull request #82 from vukoye/fix/fixes_and_improvements
+[33m1abab8d[m[33m ([m[1;33mtag: [m[1;33m0.4.4-dev.2[m[33m)[m - release 0.4.4-dev.2;
+[33mda5a1d8[m fix missing query element name fix missing feature element name fix feature attribute name
+[33m7bc06ff[m fix mam query date fields are not in `xep-0082` format https://xmpp.org/extensions/xep-0082.html
+[33ma6b7acf[m :rotating_light: removing auto-fixable warnings
+[33md772385[m Merge pull request #83 from HaoCherHong/fix/xep-0030-elements
+[33mca2480d[m Merge pull request #90 from tanukijs/fix/lint
+[33m734bc01[m Merge pull request #85 from HaoCherHong/fix/mam-query-date-format
+[33m4e2490c[m - revert `descendants` processing;
+[33m71a4005[m[33m ([m[1;33mtag: [m[1;33m0.4.4-dev.3[m[33m)[m - release 0.4.4-dev.3;
+[33m4eb613c[m - update dependencies to latest versions;
+[33m6028cfb[m[33m ([m[1;33mtag: [m[1;33m0.4.4-dev.4[m[33m)[m - release 0.4.4-dev.4;
+[33ma217f46[m[33m ([m[1;31morigin/feature/update_dependencies[m[33m)[m - update dependencies;
+[33m41f5bcb[m Merge pull request #99 from vukoye/feature/update_dependencies
+[33m0ca3e82[m[33m ([m[1;33mtag: [m[1;33m0.4.4-dev.5[m[33m)[m - release 0.4.4-dev.5;
+[33m3f56800[m - release 0.4.4-dev.5;
+[33m9b18af0[m[33m ([m[1;33mtag: [m[1;33m0.4.4-dev.6[m[33m)[m - release 0.4.4-dev.6;
+[33ma3a6f1c[m[33m ([m[1;31morigin/development[m[33m)[m - release 0.4.4-dev.7;
+[33m03b0d93[m Added secure_xmpp_connection
+[33mcb7851c[m Added secure_xmpp_connection to main
+[33m0a2fe7c[m Added secure_xmpp_connection changed
+[33m1e2da94[m Added changes 1
+[33mfae12d3[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mssl-issue-fixxes[m[33m, [m[1;31morigin/ssl-issue-fixxes[m[33m)[m Added changes 1
