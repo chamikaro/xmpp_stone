@@ -96,23 +96,58 @@ class ForceAcceptingStartTlsNegotiator extends StartTlsNegotiator {
   ForceAcceptingStartTlsNegotiator(Connection connection) : super(connection);
 
   @override
+  void negotiate(List<Nonza> nonzas) {
+    Log.d(TAG, 'negotiating starttls aggressively');
+    Log.d(TAG, "STARTTLS: Beginning aggressive negotiation");
+    state = NegotiatorState.NEGOTIATING;
+
+    // Add this try-catch block for more detailed logging
+    try {
+      // First send the request
+      Log.d(TAG, "STARTTLS: Sending request nonza");
+      _connection.writeNonza(StartTlsResponse());
+      Log.d(TAG, "STARTTLS: Request sent successfully");
+
+      // Force TLS even without waiting for server response
+      Log.d(TAG, "STARTTLS: Force starting TLS negotiation without waiting for response");
+      Timer(Duration(milliseconds: 500), () {
+        try {
+          Log.d(TAG, "STARTTLS: Forcing secure socket after delay");
+          _connection.startSecureSocket();
+          state = NegotiatorState.DONE_CLEAN_OTHERS;
+        } catch (e) {
+          Log.d(TAG, "STARTTLS: Error during forced secure socket: $e");
+        }
+      });
+
+      // Also set up normal response handling as backup
+      subscription = _connection.inNonzasStream.listen(
+              (nonza) {
+            Log.d(TAG, "STARTTLS: Received nonza: ${nonza.name}");
+            checkNonzas(nonza);
+          },
+          onError: (error) {
+            Log.d(TAG, "STARTTLS: Error in nonza stream: $error");
+          }
+      );
+    } catch (e) {
+      Log.d(TAG, "STARTTLS: Exception during negotiation: $e");
+    }
+  }
+
+  @override
   void checkNonzas(Nonza nonza) {
     Log.d(TAG, "STARTTLS: Processing nonza: ${nonza.name}");
 
-    // Start secure socket whether we receive proceed OR failure
-    if (nonza.name == 'proceed' || nonza.name == 'failure') {
-      Log.d(TAG, "STARTTLS: Received ${nonza.name}, forcing TLS handshake anyway");
-      try {
-        _connection.startSecureSocket();
-        Log.d(TAG, "STARTTLS: Called startSecureSocket successfully");
-        state = NegotiatorState.DONE_CLEAN_OTHERS;
-        subscription.cancel();
-      } catch (e) {
-        Log.d(TAG, "STARTTLS: Error during secure socket start: $e");
-        _connection.startTlsFailed();
-      }
-    } else {
-      Log.d(TAG, "STARTTLS: Received unexpected nonza: ${nonza.name}");
+    // If we get any response at all, try to secure the socket
+    // This includes proceed, failure, or unexpected nonzas like stream
+    try {
+      Log.d(TAG, "STARTTLS: Attempting to secure socket after receiving ${nonza.name}");
+      _connection.startSecureSocket();
+      state = NegotiatorState.DONE_CLEAN_OTHERS;
+      subscription.cancel();
+    } catch (e) {
+      Log.d(TAG, "STARTTLS: Error during secure socket attempt: $e");
     }
   }
 }
