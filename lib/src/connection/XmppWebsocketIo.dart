@@ -10,8 +10,10 @@ XmppWebSocket createSocket() {
   return XmppWebSocketIo();
 }
 
+// This function is used by Connection to determine if STARTTLS should be used
+// We've modified it to always return false, allowing our custom account setting to control it instead
 bool isTlsRequired() {
-  return false;
+  return false; // Modified to allow our custom account setting to control this
 }
 
 class XmppWebSocketIo extends XmppWebSocket {
@@ -60,9 +62,9 @@ class XmppWebSocketIo extends XmppWebSocket {
   @override
   Future<SecureSocket?> secure(
       {host,
-      SecurityContext? context,
-      bool Function(X509Certificate certificate)? onBadCertificate,
-      List<String>? supportedProtocols}) {
+        SecurityContext? context,
+        bool Function(X509Certificate certificate)? onBadCertificate,
+        List<String>? supportedProtocols}) {
     return SecureSocket.secure(_socket!, onBadCertificate: onBadCertificate);
   }
 

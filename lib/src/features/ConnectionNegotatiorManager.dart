@@ -23,7 +23,7 @@ class ConnectionNegotiatorManager {
   List<Negotiator> supportedNegotiatorList = [];
   Negotiator? activeNegotiator;
   Queue<NegotiatorWithSupportedNonzas?> waitingNegotiators =
-      Queue<NegotiatorWithSupportedNonzas?>();
+  Queue<NegotiatorWithSupportedNonzas?>();
 
   final Connection _connection;
   final XmppAccountSettings _accountSettings;
@@ -41,7 +41,7 @@ class ConnectionNegotiatorManager {
   void negotiateFeatureList(xml.XmlElement element) {
     Log.d(TAG, 'Negotiating features');
     var nonzas =
-        element.childElements.map((element) => Nonza.parse(element)).toList();
+    element.childElements.map((element) => Nonza.parse(element)).toList();
     supportedNegotiatorList.forEach((negotiator) {
       var matchingNonzas = negotiator.match(nonzas);
       if (matchingNonzas != null && matchingNonzas.isNotEmpty) {
@@ -93,11 +93,19 @@ class ConnectionNegotiatorManager {
   void _initSupportedNegotiatorList() {
     var streamManagement = StreamManagementModule.getInstance(_connection);
     streamManagement.reset();
-    if (_connection.isTlsRequired()) {
+
+    // Modified to use account setting instead of socket's isTlsRequired
+    if (_connection.isTlsRequired() || _accountSettings.requireTlsNegotiation) {
       supportedNegotiatorList.add(StartTlsNegotiator(_connection)); //priority 1
+      Log.d(TAG, 'Added STARTTLS negotiator to supported list');
     }
-    supportedNegotiatorList
-        .add(SaslAuthenticationFeature(_connection, _accountSettings.password));
+
+    // Only add SASL auth after TLS if allowPlainAuth=false
+    if (_accountSettings.allowPlainAuth || !_accountSettings.requireTlsNegotiation) {
+      supportedNegotiatorList
+          .add(SaslAuthenticationFeature(_connection, _accountSettings.password));
+    }
+
     if (streamManagement.isResumeAvailable()) {
       supportedNegotiatorList.add(streamManagement);
     }
@@ -118,6 +126,11 @@ class ConnectionNegotiatorManager {
     } else if (state == NegotiatorState.DONE_CLEAN_OTHERS) {
       cleanNegotiators();
     } else if (state == NegotiatorState.DONE) {
+      // If STARTTLS is done and we haven't added SASL yet (when allowPlainAuth was false)
+      if (activeNegotiator is StartTlsNegotiator && !_accountSettings.allowPlainAuth) {
+        Log.d(TAG, 'STARTTLS completed, now adding SASL authentication');
+        supportedNegotiatorList.add(SaslAuthenticationFeature(_connection, _accountSettings.password));
+      }
       negotiateNextFeature();
     }
   }

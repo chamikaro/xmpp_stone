@@ -15,7 +15,27 @@ class XmppAccountSettings {
   bool ackEnabled = true;
   bool smResumable = true;
 
-  XmppAccountSettings(this.name, this.username, this.domain, this.password, this.port, {this.host, this.resource, this.wsPath, this.wsProtocols} );
+  // Added STARTTLS support
+  bool requireTlsNegotiation = false; // Force STARTTLS negotiation
+  bool allowSelfSignedCertificates = false; // Accept self-signed certificates
+  bool allowPlainAuth = true; // Allow authentication without TLS
+
+  XmppAccountSettings(
+      this.name,
+      this.username,
+      this.domain,
+      this.password,
+      this.port,
+      {
+        this.host,
+        this.resource,
+        this.wsPath,
+        this.wsProtocols,
+        this.requireTlsNegotiation = false,
+        this.allowSelfSignedCertificates = false,
+        this.allowPlainAuth = true,
+      }
+      );
 
   Jid get fullJid => Jid(username, domain, resource);
 
@@ -23,7 +43,7 @@ class XmppAccountSettings {
   static XmppAccountSettings fromJid(String jid, String password) {
     var fullJid = Jid.fromFullJid(jid);
     var accountSettings =
-        XmppAccountSettings(jid, fullJid.local, fullJid.domain, password, 5222);
+    XmppAccountSettings(jid, fullJid.local, fullJid.domain, password, 5222);
     if (fullJid.resource != null && fullJid.resource!.isNotEmpty) {
       accountSettings.resource = fullJid.resource;
     }
