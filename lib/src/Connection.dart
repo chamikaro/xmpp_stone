@@ -448,7 +448,7 @@ class Connection {
   }
 
   bool _validateBadCertificate(X509Certificate certificate) {
-    AppLoggerUtil.logPrint("Validating certificate: ${certificate.subject}");
+    Log.d(TAG, "Validating certificate: ${certificate.subject}");
     return true; // Always accept during testing
   }
 
