@@ -448,7 +448,8 @@ class Connection {
   }
 
   bool _validateBadCertificate(X509Certificate certificate) {
-    return true;
+    AppLoggerUtil.logPrint("Validating certificate: ${certificate.subject}");
+    return true; // Always accept during testing
   }
 
   bool isTlsRequired() {
