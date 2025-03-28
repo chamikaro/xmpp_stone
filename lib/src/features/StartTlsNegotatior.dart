@@ -89,3 +89,30 @@ class StartTlsResponse extends Nonza {
     addAttribute(XmppAttribute('xmlns', 'urn:ietf:params:xml:ns:xmpp-tls'));
   }
 }
+
+class ForceAcceptingStartTlsNegotiator extends StartTlsNegotiator {
+  static const TAG = 'ForceAcceptingStartTlsNegotiator';
+
+  ForceAcceptingStartTlsNegotiator(Connection connection) : super(connection);
+
+  @override
+  void checkNonzas(Nonza nonza) {
+    Log.d(TAG, "STARTTLS: Processing nonza: ${nonza.name}");
+
+    // Start secure socket whether we receive proceed OR failure
+    if (nonza.name == 'proceed' || nonza.name == 'failure') {
+      Log.d(TAG, "STARTTLS: Received ${nonza.name}, forcing TLS handshake anyway");
+      try {
+        _connection.startSecureSocket();
+        Log.d(TAG, "STARTTLS: Called startSecureSocket successfully");
+        state = NegotiatorState.DONE_CLEAN_OTHERS;
+        subscription.cancel();
+      } catch (e) {
+        Log.d(TAG, "STARTTLS: Error during secure socket start: $e");
+        _connection.startTlsFailed();
+      }
+    } else {
+      Log.d(TAG, "STARTTLS: Received unexpected nonza: ${nonza.name}");
+    }
+  }
+}

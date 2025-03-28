@@ -60,12 +60,31 @@ class XmppWebSocketIo extends XmppWebSocket {
   }
 
   @override
-  Future<SecureSocket?> secure(
-      {host,
-        SecurityContext? context,
-        bool Function(X509Certificate certificate)? onBadCertificate,
-        List<String>? supportedProtocols}) {
-    return SecureSocket.secure(_socket!, onBadCertificate: onBadCertificate);
+  Future<SecureSocket?> secure({
+    host,
+    SecurityContext? context,
+    bool Function(X509Certificate certificate)? onBadCertificate,
+    List<String>? supportedProtocols}) {
+
+    Log.d(TAG, "XmppWebSocketIo: Starting TLS handshake with force-accept");
+
+    try {
+      // Create a security context that's more permissive
+      SecurityContext securityContext = SecurityContext.defaultContext;
+
+      return SecureSocket.secure(
+          _socket!,
+          // Always accept any certificate
+          onBadCertificate: (cert) {
+            Log.d(TAG, "Accepting certificate: ${cert.subject}");
+            return true; // Accept all certificates
+          },
+          supportedProtocols: ['tlsv1.3', 'tlsv1.2', 'tlsv1.1', 'tlsv1']
+      );
+    } catch (e) {
+      Log.d(TAG, "Exception during TLS setup: $e");
+      throw e;
+    }
   }
 
   @override
