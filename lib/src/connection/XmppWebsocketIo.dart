@@ -3,6 +3,7 @@ import 'dart:convert';
 import 'package:universal_io/io.dart';
 
 import 'package:xmpp_stone/src/connection/XmppWebsocketApi.dart';
+import '../logger/Log.dart';
 
 export 'XmppWebsocketApi.dart';
 
