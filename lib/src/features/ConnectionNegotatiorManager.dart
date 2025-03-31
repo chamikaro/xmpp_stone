@@ -53,6 +53,7 @@ class ConnectionNegotiatorManager {
       waitingNegotiators.add(NegotiatorWithSupportedNonzas(
           ServiceDiscoveryNegotiator.getInstance(_connection), []));
     }
+    Log.d(TAG, 'Negotiating next features');
     negotiateNextFeature();
   }
 
