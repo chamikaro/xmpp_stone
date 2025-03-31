@@ -144,6 +144,7 @@ class Connection {
 
   void _openStream() {
     var streamOpeningString = _socket?.getStreamOpeningElement(fullJid.domain);
+    Log.d(TAG, 'streamOpeningString $streamOpeningString');
     write(streamOpeningString);
   }
 
