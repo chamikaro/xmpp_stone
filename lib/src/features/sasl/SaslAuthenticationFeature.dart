@@ -7,6 +7,8 @@ import 'package:xmpp_stone/src/features/sasl/AnonymousHandler.dart';
 import 'package:xmpp_stone/src/features/sasl/PlainSaslHandler.dart';
 import 'package:xmpp_stone/src/features/sasl/ScramSaslHandler.dart';
 
+import '../logger/Log.dart';
+
 class SaslAuthenticationFeature extends Negotiator {
   final Connection _connection;
   final String _password;
