@@ -25,21 +25,41 @@ class XmppWebSocketIo extends XmppWebSocket {
   XmppWebSocketIo();
 
   @override
+  @override
   Future<XmppWebSocket> connect<S>(String host, int port,
       {String Function(String event)? map, List<String>? wsProtocols, String? wsPath}) async {
-    await Socket.connect(host, port).then((Socket socket) {
-      _socket = socket;
+    Log.d(TAG, '=== ATTEMPTING CONNECTION ===');
+    Log.d(TAG, 'Host: $host');
+    Log.d(TAG, 'Port: $port');
+    Log.d(TAG, 'Protocols: $wsProtocols');
+    Log.d(TAG, 'WebSocket Path: $wsPath');
 
-      Log.d(TAG, '=== Inside XmppWebsocketIo connect ===');
+    try {
+      // Attempt to resolve the host
+      var addresses = await InternetAddress.lookup(host);
+      Log.d(TAG, 'Resolved Addresses: ${addresses.map((a) => a.address)}');
 
-      if (map != null) {
-        _map = map;
-      } else {
-        _map = (element) => element;
-      }
-    });
+      await Socket.connect(host, port, timeout: Duration(seconds: 30)).then((Socket socket) {
+        Log.d(TAG, '=== SOCKET CONNECTED SUCCESSFULLY ===');
+        _socket = socket;
 
-    return Future.value(this);
+        if (map != null) {
+          _map = map;
+        } else {
+          _map = (element) => element;
+        }
+      }).catchError((error) {
+        Log.e(TAG, '=== SOCKET CONNECTION ERROR ===');
+        Log.e(TAG, 'Error Details: $error');
+        throw error;
+      });
+
+      return Future.value(this);
+    } catch (e) {
+      Log.e(TAG, '=== CONNECTION ATTEMPT FAILED ===');
+      Log.e(TAG, 'Full Error: $e');
+      throw SocketException('Connection failed: $e');
+    }
   }
 
   @override
