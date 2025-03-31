@@ -60,6 +60,7 @@ class XmppWebSocketIo extends XmppWebSocket {
         cancelOnError: cancelOnError);
   }
 
+  // In XmppWebsocketIo.dart
   @override
   Future<SecureSocket?> secure({
     host,
@@ -67,23 +68,23 @@ class XmppWebSocketIo extends XmppWebSocket {
     bool Function(X509Certificate certificate)? onBadCertificate,
     List<String>? supportedProtocols}) {
 
-    Log.d(TAG, "XmppWebSocketIo: Starting TLS handshake with force-accept");
+    Log.d(TAG, "XmppWebSocketIo: Starting TLS handshake");
 
     try {
-      // Create a security context that's more permissive
-      SecurityContext securityContext = SecurityContext.defaultContext;
-
       return SecureSocket.secure(
           _socket!,
-          // Always accept any certificate
           onBadCertificate: (cert) {
-            Log.d(TAG, "Accepting certificate: ${cert.subject}");
-            return true; // Accept all certificates
+            Log.d(TAG, "Validating certificate: ${cert.subject}");
+            // Always call the user's callback if provided
+            if (onBadCertificate != null) {
+              return onBadCertificate(cert);
+            }
+            return true; // Accept certificate by default for testing
           },
-          supportedProtocols: ['tlsv1.3', 'tlsv1.2', 'tlsv1.1', 'tlsv1']
+          supportedProtocols: supportedProtocols ?? ['tlsv1.3', 'tlsv1.2']
       );
     } catch (e) {
-      Log.d(TAG, "Exception during TLS setup: $e");
+      Log.e(TAG, "Exception during TLS setup: $e");
       throw e;
     }
   }

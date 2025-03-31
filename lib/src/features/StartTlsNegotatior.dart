@@ -83,6 +83,87 @@ class StartTlsNegotiator extends Negotiator {
   }
 }
 
+class ImprovedStartTlsNegotiator extends Negotiator {
+  static const TAG = 'ImprovedStartTlsNegotiator';
+  final Connection _connection;
+  late StreamSubscription<Nonza> subscription;
+  Completer<bool>? _proceedCompleter;
+
+  ImprovedStartTlsNegotiator(this._connection) {
+    expectedName = 'StartTlsNegotiator';
+    expectedNameSpace = 'urn:ietf:params:xml:ns:xmpp-tls';
+    priorityLevel = 1;
+  }
+
+  @override
+  List<Nonza> match(List<Nonza> requests) {
+    var nonza = requests.firstWhereOrNull((request) =>
+    request.name == 'starttls' &&
+        request.getAttribute('xmlns')?.value == expectedNameSpace);
+
+    if (nonza != null) {
+      Log.d(TAG, "Matched starttls feature");
+    }
+    return nonza != null ? [nonza] : [];
+  }
+
+  @override
+  void negotiate(List<Nonza> nonzas) {
+    Log.d(TAG, 'Negotiating STARTTLS');
+    state = NegotiatorState.NEGOTIATING;
+
+    _proceedCompleter = Completer<bool>();
+
+    // Listen for proceed or failure response
+    subscription = _connection.inNonzasStream.listen(checkNonzas);
+
+    // Send STARTTLS request
+    Log.d(TAG, "Sending STARTTLS request");
+    _connection.writeNonza(StartTlsResponse());
+
+    // Wait for proceed with timeout
+    Timer(Duration(seconds: 5), () {
+      if (!_proceedCompleter!.isCompleted) {
+        Log.d(TAG, "STARTTLS timeout - proceeding anyway");
+        _proceedCompleter!.complete(true);
+      }
+    });
+
+    // When we get proceed or timeout
+    _proceedCompleter!.future.then((proceed) {
+      if (proceed) {
+        try {
+          Log.d(TAG, "Starting TLS handshake");
+          _connection.startSecureSocket();
+          state = NegotiatorState.DONE_CLEAN_OTHERS;
+        } catch (e) {
+          Log.e(TAG, "Error starting secure socket: $e");
+          _connection.startTlsFailed();
+        }
+      } else {
+        Log.d(TAG, "STARTTLS failed or rejected");
+        _connection.startTlsFailed();
+      }
+    });
+  }
+
+  void checkNonzas(Nonza nonza) {
+    Log.d(TAG, "Received nonza: ${nonza.name}");
+
+    if (nonza.name == 'proceed') {
+      Log.d(TAG, "Received proceed response");
+      if (!_proceedCompleter!.isCompleted) {
+        _proceedCompleter!.complete(true);
+      }
+    } else if (nonza.name == 'failure') {
+      Log.d(TAG, "Received failure response");
+      if (!_proceedCompleter!.isCompleted) {
+        _proceedCompleter!.complete(false);
+      }
+    }
+  }
+}
+
 class StartTlsResponse extends Nonza {
   StartTlsResponse() {
     name = 'starttls';

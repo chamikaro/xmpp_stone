@@ -94,11 +94,10 @@ class ConnectionNegotiatorManager {
     var streamManagement = StreamManagementModule.getInstance(_connection);
     streamManagement.reset();
 
-    // Modified to use account setting instead of socket's isTlsRequired
     if (_connection.isTlsRequired() || _accountSettings.requireTlsNegotiation) {
-      // Use the force-accepting negotiator instead of the standard one
-      supportedNegotiatorList.add(ForceAcceptingStartTlsNegotiator(_connection)); //priority 1
-      Log.d(TAG, 'Added FORCE-ACCEPTING STARTTLS negotiator to supported list');
+      // Use the improved negotiator instead
+      supportedNegotiatorList.add(ImprovedStartTlsNegotiator(_connection)); //priority 1
+      Log.d(TAG, 'Added IMPROVED STARTTLS negotiator to supported list');
     }
 
     // Only add SASL auth after TLS if allowPlainAuth=false

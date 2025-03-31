@@ -392,24 +392,47 @@ class Connection {
     //todo find error stanzas
   }
 
+  // In Connection.dart
   void startSecureSocket() {
     Log.d(TAG, 'startSecureSocket');
 
-    _socket!
-        .secure(onBadCertificate: _validateBadCertificate)
-        .then((secureSocket) {
-      if (secureSocket == null) return;
+    try {
+      _socket!
+          .secure(
+          onBadCertificate: (cert) {
+            Log.d(TAG, "Validating certificate: ${cert.subject}");
+            return account.allowSelfSignedCertificates || _validateBadCertificate(cert);
+          },
+          supportedProtocols: ['tlsv1.3', 'tlsv1.2'])
+          .then((secureSocket) {
+        if (secureSocket == null) {
+          Log.e(TAG, "Failed to create secure socket");
+          startTlsFailed();
+          return;
+        }
 
-      secureSocket
-          .cast<List<int>>()
-          .transform(utf8.decoder)
-          .map(prepareStreamResponse)
-          .listen(handleResponse,
-              onError: (error) =>
-                  {handleSecuredConnectionError(error.toString())},
-              onDone: handleSecuredConnectionDone);
-      _openStream();
-    });
+        Log.d(TAG, "Secure socket established successfully");
+        secureSocket
+            .cast<List<int>>()
+            .transform(utf8.decoder)
+            .map(prepareStreamResponse)
+            .listen(handleResponse,
+            onError: (error) {
+              Log.e(TAG, "Secure socket error: $error");
+              handleSecuredConnectionError(error.toString());
+            },
+            onDone: handleSecuredConnectionDone);
+
+        // Very important - reopen the stream after TLS is established
+        _openStream();
+      }).catchError((error) {
+        Log.e(TAG, "Error during TLS negotiation: $error");
+        startTlsFailed();
+      });
+    } catch (e) {
+      Log.e(TAG, "Exception in startSecureSocket: $e");
+      startTlsFailed();
+    }
   }
 
   void fireNewStanzaEvent(AbstractStanza stanza) {
