@@ -428,8 +428,6 @@ class Connection {
 
         Log.e(TAG, "After secure socket, Before new steam send!");
 
-        _socket = secureSocket;
-
         // Use the secure stream opener instead of the regular one
         _openSecureStream();
       }).catchError((error) {
