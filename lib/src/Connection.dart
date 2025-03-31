@@ -415,19 +415,19 @@ class Connection {
         Log.d(TAG, "Secure socket is: $secureSocket");
 
         Log.d(TAG, "Secure socket established successfully");
-        // secureSocket
-        //     .cast<List<int>>()
-        //     .transform(utf8.decoder)
-        //     .map(prepareStreamResponse)
-        //     .listen(handleResponse,
-        //     onError: (error) {
-        //       Log.e(TAG, "Secure socket error: $error");
-        //       handleSecuredConnectionError(error.toString());
-        //     },
-        //     onDone: handleSecuredConnectionDone);
-        //
-        //
-        // Log.e(TAG, "After secure socket, Before new steam send!");
+        secureSocket
+            .cast<List<int>>()
+            .transform(utf8.decoder)
+            .map(prepareStreamResponse)
+            .listen(handleResponse,
+            onError: (error) {
+              Log.e(TAG, "Secure socket error: $error");
+              handleSecuredConnectionError(error.toString());
+            },
+            onDone: handleSecuredConnectionDone);
+
+
+        Log.e(TAG, "After secure socket, Before new steam send!");
         // // Very important - reopen the stream after TLS is established
         // _openStream();
       }).catchError((error) {
