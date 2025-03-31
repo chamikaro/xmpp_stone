@@ -232,10 +232,9 @@ class Connection {
       if (_socket != null) {
         try {
           setState(XmppConnectionState.Closing);
-          // Add a check to see if the socket is closed before writing
           _socket!.write('</stream:stream>');
-        } on Exception catch (e) {
-          Log.d(TAG, 'Socket already closed or error writing to socket: $e');
+        } on Exception {
+          Log.d(TAG, 'Socket already closed');
         }
       }
       authenticated = false;
@@ -426,9 +425,9 @@ class Connection {
             },
             onDone: handleSecuredConnectionDone);
 
-        Log.e(TAG, "After secure socket, Before new steam send!");
 
-        // Use the secure stream opener instead of the regular one
+        Log.e(TAG, "After secure socket, Before new steam send!");
+        // Very important - reopen the stream after TLS is established
         _openStream();
       }).catchError((error) {
         Log.e(TAG, "Error during TLS negotiation: $error");
@@ -436,31 +435,6 @@ class Connection {
       });
     } catch (e) {
       Log.e(TAG, "Exception in startSecureSocket: $e");
-      startTlsFailed();
-    }
-  }
-
-  void _openSecureStream() {
-    if (_socket != null) {
-      Log.d(TAG, 'Opening secure stream after TLS negotiation');
-      // Create a secure version of the stream header with secure='true'
-      String secureStreamHeader = """<?xml version='1.0'?><stream:stream 
-      xmlns='jabber:client' 
-      version='1.0' 
-      xmlns:stream='http://etherx.jabber.org/streams' 
-      to='${fullJid.domain}' 
-      xml:lang='en' 
-      secure='true'>""";
-
-      // Write the secure stream header
-      try {
-        _socket!.write(secureStreamHeader);
-      } catch (e) {
-        Log.e(TAG, 'Error writing secure stream header: $e');
-        startTlsFailed();
-      }
-    } else {
-      Log.e(TAG, 'Cannot open secure stream, socket is null');
       startTlsFailed();
     }
   }
