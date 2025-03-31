@@ -429,7 +429,7 @@ class Connection {
         Log.e(TAG, "After secure socket, Before new steam send!");
 
         // Use the secure stream opener instead of the regular one
-        _openSecureStream();
+        _openStream();
       }).catchError((error) {
         Log.e(TAG, "Error during TLS negotiation: $error");
         startTlsFailed();
