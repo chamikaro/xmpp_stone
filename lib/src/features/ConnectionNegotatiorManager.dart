@@ -116,6 +116,8 @@ class ConnectionNegotiatorManager {
   }
 
   void _initSupportedNegotiatorList() {
+    Log.d(TAG, '=== INITIALIZING NEGOTIATOR LIST ===');
+
     var streamManagement = StreamManagementModule.getInstance(_connection);
     streamManagement.reset();
 
@@ -125,11 +127,9 @@ class ConnectionNegotiatorManager {
       Log.d(TAG, 'Added IMPROVED STARTTLS negotiator to supported list');
     }
 
-    // Only add SASL auth after TLS if allowPlainAuth=false
-    if (_accountSettings.allowPlainAuth || !_accountSettings.requireTlsNegotiation) {
-      supportedNegotiatorList
-          .add(SaslAuthenticationFeature(_connection, _accountSettings.password));
-    }
+    // Always add SASL authentication feature
+    supportedNegotiatorList.add(SaslAuthenticationFeature(_connection, _accountSettings.password));
+    Log.d(TAG, 'Added SaslAuthenticationFeature to supported list');
 
     if (streamManagement.isResumeAvailable()) {
       supportedNegotiatorList.add(streamManagement);
@@ -143,6 +143,8 @@ class ConnectionNegotiatorManager {
     //     .add(ServiceDiscoveryNegotiator.getInstance(_connection));
     supportedNegotiatorList.add(CarbonsNegotiator.getInstance(_connection));
     supportedNegotiatorList.add(MAMNegotiator.getInstance(_connection));
+
+    Log.d(TAG, '=== NEGOTIATOR LIST INITIALIZED WITH ${supportedNegotiatorList.length} NEGOTIATORS ===');
   }
 
   void stateListener(NegotiatorState state) {
