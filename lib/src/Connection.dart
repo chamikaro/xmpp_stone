@@ -411,6 +411,8 @@ class Connection {
           return;
         }
 
+        Log.d(TAG, "Secure socket is: $secureSocket");
+
         Log.d(TAG, "Secure socket established successfully");
         secureSocket
             .cast<List<int>>()
