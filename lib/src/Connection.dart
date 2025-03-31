@@ -425,6 +425,8 @@ class Connection {
             },
             onDone: handleSecuredConnectionDone);
 
+
+        Log.e(TAG, "After secure socket, Before new steam send!");
         // Very important - reopen the stream after TLS is established
         _openStream();
       }).catchError((error) {
