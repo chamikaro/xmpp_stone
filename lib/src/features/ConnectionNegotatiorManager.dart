@@ -39,22 +39,46 @@ class ConnectionNegotiatorManager {
   }
 
   void negotiateFeatureList(xml.XmlElement element) {
-    Log.d(TAG, 'Negotiating features');
-    var nonzas =
-    element.childElements.map((element) => Nonza.parse(element)).toList();
+    Log.d(TAG, 'Negotiating features - START');
+
+    // Log the available features from the server
+    Log.d(TAG, 'Server offered features: ${element.outerXml}');
+
+    // Parse all child elements as nonzas
+    var nonzas = element.childElements.map((element) => Nonza.parse(element)).toList();
+    Log.d(TAG, 'Parsed ${nonzas.length} nonzas from server features');
+
+    // Log our supported negotiators
+    Log.d(TAG, 'We have ${supportedNegotiatorList.length} supported negotiators: ${supportedNegotiatorList.map((n) => n.expectedName).join(', ')}');
+
+    // Try to match each supported negotiator with server features
     supportedNegotiatorList.forEach((negotiator) {
       var matchingNonzas = negotiator.match(nonzas);
+      Log.d(TAG, 'Negotiator ${negotiator.expectedName}: found ${matchingNonzas?.length ?? 0} matching nonzas');
+
       if (matchingNonzas != null && matchingNonzas.isNotEmpty) {
-        waitingNegotiators
-            .add(NegotiatorWithSupportedNonzas(negotiator, matchingNonzas));
+        waitingNegotiators.add(NegotiatorWithSupportedNonzas(negotiator, matchingNonzas));
+        Log.d(TAG, 'Added ${negotiator.expectedName} to waiting negotiators');
       }
     });
+
+    // If authenticated, add service discovery
     if (_connection.authenticated) {
+      Log.d(TAG, 'Connection is authenticated, adding ServiceDiscoveryNegotiator');
       waitingNegotiators.add(NegotiatorWithSupportedNonzas(
           ServiceDiscoveryNegotiator.getInstance(_connection), []));
+    } else {
+      Log.d(TAG, 'Connection is not yet authenticated');
     }
-    Log.d(TAG, 'Negotiating next features');
+
+    // Log waiting negotiators before proceeding
+    Log.d(TAG, 'Waiting negotiators queue size: ${waitingNegotiators.length}');
+
+    // Start negotiating the next feature
+    Log.d(TAG, 'Proceeding to negotiate next feature');
     negotiateNextFeature();
+
+    Log.d(TAG, 'Negotiating features - END');
   }
 
   void cleanNegotiators() {
