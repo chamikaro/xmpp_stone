@@ -25,20 +25,20 @@ class SaslAuthenticationFeature extends Negotiator {
   // improve this
   @override
   List<Nonza> match(List<Nonza> requests) {
-    print("SaslAuthenticationFeature match: received ${requests.length} nonzas");
+    Log.d(TAG, "SaslAuthenticationFeature match: received ${requests.length} nonzas");
 
     // Print all nonza names to see what we're matching against
     for (var element in requests) {
-      print("Nonza name: ${element.name}, attributes: ${element.attributes}");
+      Log.d(TAG, "Nonza name: ${element.name}, attributes: ${element.attributes}");
     }
 
     var nonza = requests.firstWhereOrNull((element) => element.name == 'mechanisms');
 
     if (nonza != null) {
-      print("Found mechanisms nonza with ${nonza.children.length} children");
+      Log.d(TAG, "Found mechanisms nonza with ${nonza.children.length} children");
       return [nonza];
     } else {
-      print("No mechanisms nonza found");
+      Log.d(TAG, "No mechanisms nonza found");
       return [];
     }
   }
