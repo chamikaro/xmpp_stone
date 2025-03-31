@@ -126,9 +126,12 @@ class ConnectionNegotiatorManager {
     } else if (state == NegotiatorState.DONE_CLEAN_OTHERS) {
       cleanNegotiators();
     } else if (state == NegotiatorState.DONE) {
-      // If STARTTLS is done and we haven't added SASL yet (when allowPlainAuth was false)
-      if (activeNegotiator is StartTlsNegotiator && !_accountSettings.allowPlainAuth) {
+      // Always add SASL authentication feature after STARTTLS completes
+      if (activeNegotiator is StartTlsNegotiator) {
         Log.d(TAG, 'STARTTLS completed, now adding SASL authentication');
+        // Remove any existing SASL feature first to avoid duplicates
+        supportedNegotiatorList.removeWhere((negotiator) => negotiator is SaslAuthenticationFeature);
+        // Add the SASL feature
         supportedNegotiatorList.add(SaslAuthenticationFeature(_connection, _accountSettings.password));
       }
       negotiateNextFeature();
