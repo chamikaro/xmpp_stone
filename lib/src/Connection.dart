@@ -16,8 +16,8 @@ import 'package:xmpp_stone/src/parser/StanzaParser.dart';
 import 'package:xmpp_stone/xmpp_stone.dart';
 
 import 'connection/XmppWebsocketApi.dart'
-    if (dart.library.io) 'connection/XmppWebsocketIo.dart'
-    if (dart.library.html) 'connection/XmppWebsocketHtml.dart' as xmppSocket;
+if (dart.library.io) 'connection/XmppWebsocketIo.dart'
+if (dart.library.html) 'connection/XmppWebsocketHtml.dart' as xmppSocket;
 
 enum XmppConnectionState {
   Idle,
@@ -52,6 +52,9 @@ class Connection {
 
   StreamManagementModule? streamManagementModule;
 
+  // Add this flag to track secure state
+  bool _isSecure = false;
+
   Jid get serverName {
     if (_serverName != null) {
       return Jid.fromFullJid(_serverName!);
@@ -80,19 +83,19 @@ class Connection {
   bool authenticated = false;
 
   final StreamController<AbstractStanza?> _inStanzaStreamController =
-      StreamController.broadcast();
+  StreamController.broadcast();
 
   final StreamController<AbstractStanza> _outStanzaStreamController =
-      StreamController.broadcast();
+  StreamController.broadcast();
 
   final StreamController<Nonza> _inNonzaStreamController =
-      StreamController.broadcast();
+  StreamController.broadcast();
 
   final StreamController<Nonza> _outNonzaStreamController =
-      StreamController.broadcast();
+  StreamController.broadcast();
 
   final StreamController<XmppConnectionState> _connectionStateStreamController =
-      StreamController.broadcast();
+  StreamController.broadcast();
 
   Stream<AbstractStanza?> get inStanzasStream {
     return _inStanzaStreamController.stream;
@@ -123,6 +126,7 @@ class Connection {
   }
 
   xmppSocket.XmppWebSocket? _socket;
+  SecureSocket? _secureSocket;
 
   // for testing purpose
   set socket(xmppSocket.XmppWebSocket? value) {
@@ -146,6 +150,32 @@ class Connection {
     var streamOpeningString = _socket?.getStreamOpeningElement(fullJid.domain);
     Log.d(TAG, 'streamOpeningString $streamOpeningString');
     write(streamOpeningString);
+  }
+
+  void _openSecureStream() {
+    if (_socket != null) {
+      Log.d(TAG, 'Opening secure stream after TLS negotiation');
+      // Create a secure version of the stream header with secure='true'
+      String secureStreamHeader = """<?xml version='1.0'?><stream:stream 
+      xmlns='jabber:client' 
+      version='1.0' 
+      xmlns:stream='http://etherx.jabber.org/streams' 
+      to='${fullJid.domain}' 
+      xml:lang='en' 
+      secure='true'>""";
+
+      // Write the secure stream header
+      try {
+        Log.d(TAG, "Sending secure stream header");
+        write(secureStreamHeader);
+      } catch (e) {
+        Log.e(TAG, 'Error writing secure stream header: $e');
+        startTlsFailed();
+      }
+    } else {
+      Log.e(TAG, 'Cannot open secure stream, socket is null');
+      startTlsFailed();
+    }
   }
 
   String restOfResponse = '';
@@ -230,13 +260,15 @@ class Connection {
     if (state != XmppConnectionState.Closed &&
         state != XmppConnectionState.ForcefullyClosed &&
         state != XmppConnectionState.Closing) {
-      if (_socket != null) {
-        try {
-          setState(XmppConnectionState.Closing);
+      setState(XmppConnectionState.Closing);
+      try {
+        if (_isSecure && _secureSocket != null) {
+          _secureSocket!.write('</stream:stream>');
+        } else if (_socket != null) {
           _socket!.write('</stream:stream>');
-        } on Exception {
-          Log.d(TAG, 'Socket already closed');
         }
+      } catch (e) {
+        Log.d(TAG, 'Socket already closed or error writing to socket: $e');
       }
       authenticated = false;
     }
@@ -260,7 +292,17 @@ class Connection {
     CarbonsNegotiator.removeInstance(this);
     MAMNegotiator.removeInstance(this);
     reconnectionManager?.close();
-    _socket?.close();
+
+    try {
+      if (_isSecure && _secureSocket != null) {
+        _secureSocket!.close();
+      }
+      if (_socket != null) {
+        _socket!.close();
+      }
+    } catch (e) {
+      Log.d(TAG, 'Error closing socket during dispose: $e');
+    }
   }
 
   bool startMatcher(xml.XmlElement element) {
@@ -303,7 +345,7 @@ class Connection {
       xml.XmlNode? xmlResponse;
       try {
         xmlResponse = xml.XmlDocument.parse(
-                fullResponse.replaceAll(RegExp(r'<\?(xml.+?)\>'), ''))
+            fullResponse.replaceAll(RegExp(r'<\?(xml.+?)\>'), ''))
             .firstChild;
       } catch (e) {
         _unparsedXmlResponse += fullResponse.substring(
@@ -326,7 +368,7 @@ class Connection {
           .whereType<xml.XmlElement>()
           .where((element) => featureMatcher(element))
           .forEach((feature) =>
-              connectionNegotatiorManager.negotiateFeatureList(feature));
+          connectionNegotatiorManager.negotiateFeatureList(feature));
 
       //TODO: Probably will introduce bugs!!!
       xmlResponse.childElements
@@ -354,7 +396,15 @@ class Connection {
   void write(message) {
     Log.xmppp_sending(message);
     if (isOpened()) {
-      _socket!.write(message);
+      try {
+        if (_isSecure && _secureSocket != null) {
+          _secureSocket!.write(message);
+        } else if (_socket != null) {
+          _socket!.write(message);
+        }
+      } catch (e) {
+        Log.e(TAG, 'Error writing to socket: $e');
+      }
     }
   }
 
@@ -393,7 +443,7 @@ class Connection {
     //todo find error stanzas
   }
 
-  // In Connection.dart
+  // Fixed startSecureSocket method
   void startSecureSocket() {
     Log.d(TAG, 'startSecureSocket');
 
@@ -412,24 +462,31 @@ class Connection {
           return;
         }
 
-        Log.d(TAG, "Secure socket is: $secureSocket");
-
         Log.d(TAG, "Secure socket established successfully");
-        // secureSocket
-        //     .cast<List<int>>()
-        //     .transform(utf8.decoder)
-        //     .map(prepareStreamResponse)
-        //     .listen(handleResponse,
-        //     onError: (error) {
-        //       Log.e(TAG, "Secure socket error: $error");
-        //       handleSecuredConnectionError(error.toString());
-        //     },
-        //     onDone: handleSecuredConnectionDone);
-        //
-        //
-        // Log.e(TAG, "After secure socket, Before new steam send!");
-        // // Very important - reopen the stream after TLS is established
-        // _openStream();
+
+        _secureSocket = secureSocket;
+        _isSecure = true;
+
+        try {
+          // Set up listeners on the secure socket
+          secureSocket
+              .cast<List<int>>()
+              .transform(utf8.decoder)
+              .map(prepareStreamResponse)
+              .listen(handleResponse,
+              onError: (error) {
+                Log.e(TAG, "Secure socket error: $error");
+                handleSecuredConnectionError(error.toString());
+              },
+              onDone: handleSecuredConnectionDone);
+
+          // Open secure stream
+          _openSecureStream();
+
+        } catch (e) {
+          Log.e(TAG, "Error setting up secure socket: $e");
+          startTlsFailed();
+        }
       }).catchError((error) {
         Log.e(TAG, "Error during TLS negotiation: $error");
         startTlsFailed();
@@ -450,7 +507,7 @@ class Connection {
 
   bool elementHasAttribute(xml.XmlElement element, xml.XmlAttribute attribute) {
     var list = element.attributes.firstWhereOrNull((attr) =>
-        attr.name.local == attribute.name.local &&
+    attr.name.local == attribute.name.local &&
         attr.value == attribute.value);
     return list != null;
   }
@@ -467,8 +524,16 @@ class Connection {
   }
 
   void startTlsFailed() {
+    Log.e(TAG, "STARTTLS negotiation failed");
     setState(XmppConnectionState.StartTlsFailed);
-    close();
+
+    // Don't try to write to a closed socket
+    try {
+      setState(XmppConnectionState.Closing);
+      authenticated = false;
+    } catch (e) {
+      Log.e(TAG, "Error during startTlsFailed: $e");
+    }
   }
 
   void authenticating() {
