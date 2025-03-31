@@ -222,6 +222,7 @@ class Connection {
   }
 
   Future<void> openSocket() async {
+    Log.d(TAG, '=== OPENING SOCKET ===');
     connectionNegotatiorManager.init();
     setState(XmppConnectionState.SocketOpening);
     try {
