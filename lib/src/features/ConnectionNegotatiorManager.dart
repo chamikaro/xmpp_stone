@@ -16,7 +16,7 @@ import 'package:xmpp_stone/src/features/servicediscovery/MAMNegotiator.dart';
 import 'package:xmpp_stone/src/features/servicediscovery/ServiceDiscoveryNegotiator.dart';
 import 'package:xmpp_stone/src/features/streammanagement/StreamManagmentModule.dart';
 
-import '../../logger/Log.dart';  // Correct path to the Log class
+import '../logger/Log.dart';
 
 class ConnectionNegotiatorManager {
   static const String TAG = 'ConnectionNegotiatorManager';

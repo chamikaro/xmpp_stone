@@ -7,9 +7,10 @@ import 'package:xmpp_stone/src/features/sasl/AnonymousHandler.dart';
 import 'package:xmpp_stone/src/features/sasl/PlainSaslHandler.dart';
 import 'package:xmpp_stone/src/features/sasl/ScramSaslHandler.dart';
 
-import '../logger/Log.dart';
+import '../../logger/Log.dart';  // Correct path to the Log class
 
 class SaslAuthenticationFeature extends Negotiator {
+  static const String TAG = 'SaslAuthenticationFeature';  // Added TAG
   final Connection _connection;
   final String _password;
 
