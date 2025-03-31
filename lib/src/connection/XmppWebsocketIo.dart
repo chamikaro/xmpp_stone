@@ -30,6 +30,8 @@ class XmppWebSocketIo extends XmppWebSocket {
     await Socket.connect(host, port).then((Socket socket) {
       _socket = socket;
 
+      Log.d(TAG, '=== Inside XmppWebsocketIo connect ===');
+
       if (map != null) {
         _map = map;
       } else {
