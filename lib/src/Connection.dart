@@ -237,19 +237,36 @@ class Connection {
         map: prepareStreamResponse,
       )
           .then((socket) {
+        Log.d(TAG, '=== SOCKET CONNECTION SUCCESSFUL ===');
         // if not closed in meantime
         if (_state != XmppConnectionState.Closed) {
           setState(XmppConnectionState.SocketOpened);
           _socket = socket;
-          socket.listen(handleResponse, onDone: handleConnectionDone);
+          socket.listen(
+              handleResponse,
+              onDone: () {
+                Log.d(TAG, '=== SOCKET CONNECTION DONE ===');
+                handleConnectionDone();
+              },
+              onError: (error) {
+                Log.e(TAG, '=== SOCKET CONNECTION ERROR ===');
+                Log.e(TAG, 'Error: $error');
+                handleConnectionError(error.toString());
+              }
+          );
           _openStream();
         } else {
           Log.d(TAG, 'Closed in meantime');
           socket.close();
         }
+      }).catchError((error) {
+        Log.e(TAG, '=== SOCKET CONNECTION CATCH ERROR ===');
+        Log.e(TAG, 'Error: $error');
+        handleConnectionError(error.toString());
       });
     } catch (error) {
-      Log.e(TAG, 'Socket Exception' + error.toString());
+      Log.e(TAG, '=== SOCKET INITIALIZATION ERROR ===');
+      Log.e(TAG, 'Error: $error');
       handleConnectionError(error.toString());
     }
   }
